@@ -1,0 +1,46 @@
+{
+  "nist_pqc_standards": {
+    "KEM": "FIPS 203 (ML-KEM / Crystals-Kyber)",
+    "DIGITAL_SIGNATURES": "FIPS 204 (ML-DSA / Crystals-Dilithium)",
+    "STATELESS_HASH_SIG": "FIPS 205 (SLH-DSA / SPHINCS+)",
+    "SYMMETRIC_STANDARD": "AES-256 / SHA-384 / SHA-512 (Grover-Resistant)"
+  },
+  "rules": [
+    {
+      "id": "Q-SHOR-01",
+      "name": "RSA Public-Key Cryptography Detected",
+      "pattern": "(?i)(rsa\\.generate_private_key|RSA\\.generate|PKCS1_OAEP|from cryptography\\.hazmat\\.primitives\\.asymmetric import rsa|cryptography\\.hazmat\\.primitives\\.asymmetric\\.rsa|import rsa)",
+      "algorithm_type": "Asymmetric Key Encapsulation / Signing",
+      "threat_model": "Vulnerable to polynomial-time factorization via Shor's Algorithm",
+      "severity": "CRITICAL",
+      "nist_migration": "FIPS 203 (ML-KEM) for KEM or FIPS 204 (ML-DSA) for Signatures"
+    },
+    {
+      "id": "Q-SHOR-02",
+      "name": "Elliptic Curve Cryptography (ECDSA / ECDH / Ed25519)",
+      "pattern": "(?i)(ec\\.generate_private_key|SECP256R1|SECP384R1|SECP521R1|ECDSA|ECDH|curve25519|ed25519)",
+      "algorithm_type": "Asymmetric Digital Signatures & Key Exchange",
+      "threat_model": "Broken by discrete logarithm resolution on quantum processors",
+      "severity": "CRITICAL",
+      "nist_migration": "FIPS 204 (ML-DSA-65) or Hybrid X25519 + ML-KEM-768"
+    },
+    {
+      "id": "Q-GROVER-03",
+      "name": "Symmetric Encryption Bit-Strength Degradation (AES-128)",
+      "pattern": "(?i)(AES-128|AES128|key_size\\s*=\\s*128|Cipher\\(algorithms\\.AES\\(key_128\\))",
+      "algorithm_type": "Symmetric Block Cipher",
+      "threat_model": "Grover's Algorithm reduces effective security strength to ~64 bits",
+      "severity": "HIGH",
+      "nist_migration": "Upgrade key length to AES-256 (provides 128-bit post-quantum security)"
+    },
+    {
+      "id": "Q-GROVER-04",
+      "name": "Legacy Cryptographic Hash (SHA-1 / MD5 / SHA-256 Collisions)",
+      "pattern": "(?i)(hashlib\\.md5|hashlib\\.sha1|algorithms\\.SHA1|algorithms\\.MD5)",
+      "algorithm_type": "Cryptographic Hash Function",
+      "threat_model": "Pre-image attack complexity halved under quantum search operators",
+      "severity": "HIGH",
+      "nist_migration": "Migrate to SHA-384, SHA-512, or SHA3-256/512"
+    }
+  ]
+}
